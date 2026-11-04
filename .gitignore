@@ -35,6 +35,7 @@ build/
 *.uvgui.*
 *.uvopt
 *.uvoptx
+*.uvguix.*
 
 # Historial y respaldos de Keil
 *.bak
