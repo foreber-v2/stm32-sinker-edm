@@ -1,0 +1,130 @@
+
+(kicad_symbol_lib (version 20211014) (generator kicad_symbol_editor)
+  (symbol "FGH40N60SMD" (pin_names (offset 1.016)) (in_bom yes) (on_board yes)
+    (property "Reference" "U" (id 0) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom))
+    )
+    (property "Value" "FGH40N60SMD" (id 1) (at 0 0.0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom))
+    )
+    (property "Footprint" "FGH40N60SMD:TO247BV" (id 2) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (property "MF" "ON Semiconductor" (id 4) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (property "Description" "\n                        \n                            IGBT Field Stop 600 V 80 A 349 W Through Hole TO-247-3\n                        \n" (id 5) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (property "Package" "TO-247-3 ON Semiconductor" (id 6) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (property "Price" "None" (id 7) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (property "SnapEDA_Link" "https://www.snapeda.com/parts/FGH40N60SMD/Onsemi/view-part/?ref=snap" (id 8) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (property "MP" "FGH40N60SMD" (id 9) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (property "Availability" "In Stock" (id 10) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (property "Check_prices" "https://www.snapeda.com/parts/FGH40N60SMD/Onsemi/view-part/?ref=eda" (id 11) (at 0 0 0)
+      (effects (font (size 1.27 1.27)) (justify bottom) hide)
+    )
+    (symbol "FGH40N60SMD_0_0"
+      (polyline
+        (pts (xy -5.08 5.08) (xy -5.08 -5.08)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 2.54 -12.7) (xy 5.08 -15.24)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy -5.08 5.08) (xy -2.54 7.62)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy -7.62 5.08) (xy -7.62 -5.08)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy -2.54 7.62) (xy 0.0 12.7)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 0.0 12.7) (xy 2.54 10.16)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 2.54 10.16) (xy -2.54 7.62)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 2.54 -12.7) (xy -2.54 -10.16)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy -2.54 -10.16) (xy 0.0 -7.62)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 0.0 -7.62) (xy 2.54 -12.7)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 5.08 15.24) (xy 10.16 15.24)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 10.16 15.24) (xy 10.16 5.08)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 10.16 -15.24) (xy 5.08 -15.24)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 7.62 5.08) (xy 10.16 5.08)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 10.16 5.08) (xy 12.7 5.08)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 10.16 5.08) (xy 7.62 -2.54)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 7.62 -2.54) (xy 10.16 -2.54)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 10.16 -2.54) (xy 12.7 -2.54)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 12.7 -2.54) (xy 10.16 5.08)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 5.08 15.24) (xy -2.54 7.62)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy -5.08 -5.08) (xy 2.54 -12.7)) (stroke (width 0.254))
+      )
+      (polyline
+        (pts (xy 10.16 -15.24) (xy 10.16 -2.54)) (stroke (width 0.254))
+      )
+      (pin bidirectional line (at -12.7 -5.08 0) (length 5.08)
+        (name "G"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "G"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+      (pin bidirectional line (at 5.08 20.32 270.0) (length 5.08)
+        (name "C"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "D"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+      (pin bidirectional line (at 5.08 -20.32 90.0) (length 5.08)
+        (name "E"
+          (effects (font (size 1.016 1.016)))
+        )
+        (number "S"
+          (effects (font (size 1.016 1.016)))
+        )
+      )
+    )
+  )
+)
