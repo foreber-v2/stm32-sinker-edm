@@ -18,3 +18,11 @@ An ultra-low-cost, open-source Sinker Electrical Discharge Machining (EDM) proto
 
 ## 🎥 Demo & Working Principle
 > *(https://www.youtube.com/watch?v=tHQVQZXIZHM)*
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=tHQVQZXIZHM" target="_blank">
+    <img src="https://img.youtube.com/vi/tHQVQZXIZHM/maxresdefault.jpg" alt="Watch the Sinker EDM Demo on YouTube" width="700px">
+  </a>
+</p>
+<p align="center">
+  <em>👆 Click the image to watch the full prototype demo on YouTube!</em>
+</p>
