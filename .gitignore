@@ -7,6 +7,8 @@
 *.kicad_sch-bak
 *-bak
 *.history/
+*.zip
+*-backups/
 
 # Archivos de bloqueo y temporales de edición
 *.lck
