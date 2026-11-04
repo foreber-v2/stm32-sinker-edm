@@ -17,44 +17,40 @@ An ultra-low-cost, open-source Sinker Electrical Discharge Machining (EDM) proto
 ---
 
 ## 🎥 Demo & Working Principle
+
 <!-- SECCIÓN DE DEMOSTRACIÓN Y RESULTADOS -->
 <h2 align="center">🎥 Demonstration & Results</h2>
 
-<!-- FILA 1: VIDEOS LADO A LADO (MINIATURAS COMPACTAS) -->
-<div align="center" style="display: flex; justify-content: center; align-items: flex-start; gap: 20px; flex-wrap: wrap; margin-bottom: 20px;">
-  
-  <!-- Video Normal (Horizontal) -->
-  <div style="width: 260px;">
-    <p align="center"><b>📺 Full Demo</b></p>
-    <a href="https://www.youtube.com/watch?v=tHQVQZXIZHM" target="_blank">
-      <img src="https://img.youtube.com/vi/tHQVQZXIZHM/hqdefault.jpg" alt="Full Video Demo" width="100%" style="border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.2);">
-    </a>
-  </div>
+<!-- FILA 1: VIDEOS LADO A LADO -->
+<table align="center" border="0" cellspacing="0" cellpadding="10">
+  <tr>
+    <td align="center" valign="bottom" width="260">
+      <p><b>📺 Full Demo</b></p>
+      <a href="https://www.youtube.com/watch?v=tHQVQZXIZHM" target="_blank">
+        <img src="https://img.youtube.com/vi/tHQVQZXIZHM/hqdefault.jpg" alt="Full Video Demo" width="240" style="border-radius: 8px;">
+      </a>
+    </td>
+    <td align="center" valign="bottom" width="180">
+      <p><b>📱 Short Demo</b></p>
+      <a href="https://youtube.com/shorts/WW8KnzB_j1U" target="_blank">
+        <img src="https://i.ytimg.com/vi/WW8KnzB_j1U/hqdefault.jpg" alt="YouTube Short Demo" width="150" style="border-radius: 8px;">
+      </a>
+    </td>
+  </tr>
+</table>
 
-  <!-- YouTube Short (Vertical) -->
-  <div style="width: 160px;">
-    <p align="center"><b>📱 Short Demo</b></p>
-    <a href="https://youtube.com/shorts/WW8KnzB_j1U" target="_blank">
-      <img src="https://i.ytimg.com/vi/WW8KnzB_j1U/hqdefault.jpg" alt="YouTube Short Demo" width="100%" style="border-radius: 8px; box-shadow: 0 3px 6px rgba(0,0,0,0.2);">
-    </a>
-  </div>
+<!-- FILA 2: FOTOS DE LAS PIEZAS LADO A LADO -->
+<table align="center" border="0" cellspacing="0" cellpadding="10">
+  <tr>
+    <td align="center" valign="top" width="240">
+      <img src="docs/photos_of_tests/pieces_finished.jpg" alt="Finished Cut Sample 1" width="220" style="border-radius: 8px;">
+      <p><sub><i>Fig 1. Workpieces detail</i></sub></p>
+    </td>
+    <td align="center" valign="top" width="240">
+      <img src="docs/photos_of_tests/steel_piece.jpg" alt="Finished Cut Sample 2" width="220" style="border-radius: 8px;">
+      <p><sub><i>Fig 2. Surface finish</i></sub></p>
+    </td>
+  </tr>
+</table>
 
-</div>
-
-<!-- FILA 2: FOTOS DE LAS PIEZAS LADO A LADO (TAMAÑO COMPACTO) -->
-<div align="center" style="display: flex; justify-content: center; align-items: flex-start; gap: 20px; flex-wrap: wrap; margin-bottom: 25px;">
-  
-  <!-- Imagen Pieza 1 -->
-  <div style="width: 220px;">
-    <img src="docs/photos_of_tests/steel_piece.jpg" alt="Finished Cut Sample 1" width="100%" style="border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 3px 6px rgba(0,0,0,0.1);">
-    <p align="center"><sub><i>Fig 1. Workpiece detail</i></sub></p>
-  </div>
-
-  <!-- Imagen Pieza 2 -->
-  <div style="width: 220px;">
-    <img src="docs/photos_of_tests/pieces_finished.jpg" alt="Finished Cut Sample 2" width="100%" style="border-radius: 8px; border: 1px solid #ddd; box-shadow: 0 3px 6px rgba(0,0,0,0.1);">
-    <p align="center"><sub><i>Fig 2. Surface finish</i></sub></p>
-  </div>
-
-</div>
 <hr>
