@@ -33,7 +33,7 @@ An ultra-low-cost, open-source Sinker Electrical Discharge Machining (EDM) proto
     <td align="center" valign="bottom" width="380">
       <p><b>📱 Short Demo</b></p>
       <a href="https://youtube.com/shorts/WW8KnzB_j1U" target="_blank">
-        <img src="https://i.ytimg.com/vi/WW8KnzB_j1U/hqdefault.jpg" alt="YouTube Short Demo" width="150" style="border-radius: 8px;">
+        <img src="https://i.ytimg.com/vi/WW8KnzB_j1U/hqdefault.jpg" alt="YouTube Short Demo" width="240" style="border-radius: 8px;">
       </a>
     </td>
   </tr>
