@@ -43,11 +43,11 @@ An ultra-low-cost, open-source Sinker Electrical Discharge Machining (EDM) proto
 <table align="center" border="0" cellspacing="0" cellpadding="10">
   <tr>
     <td align="center" valign="top" width="240">
-      <img src="docs/photos_of_tests/pieces_finished.jpg" alt="Finished Cut Sample 1" width="220" style="border-radius: 8px;">
+      <img src="images/photos_of_tests/pieces_finished.jpg" alt="Finished Cut Sample 1" width="220" style="border-radius: 8px;">
       <p><sub><i>Fig 1. Workpieces detail</i></sub></p>
     </td>
     <td align="center" valign="top" width="240">
-      <img src="docs/photos_of_tests/steel_piece.jpg" alt="Finished Cut Sample 2" width="220" style="border-radius: 8px;">
+      <img src="images/photos_of_tests/steel_piece.jpg" alt="Finished Cut Sample 2" width="220" style="border-radius: 8px;">
       <p><sub><i>Fig 2. Surface finish</i></sub></p>
     </td>
   </tr>
