@@ -1,0 +1,50 @@
+# ==========================================
+# Archivos Temporales de KiCad
+# ==========================================
+# Respaldos y guardados automáticos
+*.bak
+*.kicad_pcb-bak
+*.kicad_sch-bak
+*-bak
+
+# Archivos de bloqueo y temporales de edición
+*.lck
+*.lock
+
+# Salidas de fabricación y temporales (diseños impresos/pantallas)
+/job/
+*_job.gbrjob
+*.gbr
+*.drl
+*.pdf
+
+# Cache local de componentes (opcional, pero se genera solo)
+fp-info-cache
+
+
+# ==========================================
+# Archivos Temporales de Keil uVision (ARM/MDK)
+# ==========================================
+# Carpetas de compilación (archivos .o, .d, .axf, .hex, etc.)
+Objects/
+Listings/
+build/
+
+# Archivos de configuración de usuario y diseño de GUI
+*.uvgui.*
+*.uvopt
+*.uvoptx
+
+# Historial y respaldos de Keil
+*.bak
+*.dep
+*.lst
+*.m51
+*.map
+*.htm
+*.lnp
+*.sfr
+
+# Archivos de depuración y estado de sesión
+*.build_log.htm
+*.scvd
