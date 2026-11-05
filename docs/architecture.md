@@ -55,4 +55,4 @@ By observing the binary/combinational lighting states of these 3 LEDs, the opera
 
 ---
 
-[⬅️ Back to Main README](../README.md)
+[⬅️ Back to Main README](..)
