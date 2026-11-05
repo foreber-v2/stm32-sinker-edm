@@ -60,7 +60,6 @@ Here are detailed close-ups of the physical modifications, snubber builds, balan
 </p>
 <p align="center"><sub><i>Figure 5: Detail of Snubber Network #3 layout and multi-component footprint usage, for SW3(Q1).</i></sub></p>
 
-!-- Foto de Detalle 4: Snubber 4 -->
 <p align="center">
   <img src="../images/detail_snubbers_others/snubber_extinguisher.jpg" alt="Snubber Network 4 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
