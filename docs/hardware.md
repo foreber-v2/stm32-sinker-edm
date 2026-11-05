@@ -1,10 +1,91 @@
-# C. Hardware & Bill of Materials
+# C. Hardware & Bill of Materials (BOM)
 
 [⬅️ Back to Main](..)
 
 ---
 
-## Coming Soon!
+## 1. KiCad Schematics & Single-Sided PCB Layout
+This section covers the electronic design files for the main control and power boards. 
+
+> ⚠️ **Prototyping Philosophy & "As-Is" Reality Check:**  
+> This was one of the first custom PCB designs I undertook. Given manufacturing lead times and variables, making a second "perfect" iteration without knowing whether the core concept would work was economically and temporally unviable. The primary goal was a **Proof of Concept (PoC)** to validate simulations in the physical world. Consequently, several improvised modifications and design adjustments were made on the fly, which are detailed below.
+
+<!-- Espacio para la captura del Esquemático -->
+<p align="center">
+  <img src="../images/diagrams/schematic_overview.jpeg" alt="KiCad Schematic Overview" width="650px" style="border-radius: 6px; border: 1px solid #ddd;">
+</p>
+<p align="center"><sub><i>Figure 1: Main schematic overview designed in KiCad.</i></sub></p>
+
+<!-- Espacio para la captura del PCB Layout -->
+<p align="center">
+  <img src="../images/diagrams/pcb_layout.jpeg" alt="PCB Layout and Copper Routes" width="650px" style="border-radius: 6px; border: 1px solid #ddd;">
+</p>
+<p align="center"><sub><i>Figure 2: Single-sided PCB layout showing traces, via placements, and routing.</i></sub></p>
+
+---
+
+## 2. On-the-Fly PCB Modifications & Practical Workarounds
+Because hardware validation happened iteratively, several physical modifications were implemented directly on the manufactured board:
+
+* **Via Patching & Pin Re-routing:** Manual via jumpers were soldered to correctly map switching nodes to the required STM32 timer pins (`t1c1` and `t1c1n`).
+* **Snubber Circuit Adaptability:** All snubber networks in the schematic were intentionally designed with footprints for **3 parallel capacitors and 3 parallel resistors**. This multi-footprint approach was chosen to handle resource constraints and future-proof the board; if initial bench tests required different capacitance or resistance values, alternative components from inventory could be dropped straight into the existing pads and vias without redesigning the PCB.
+* **Snubber Tuning (Empirical Result):** Initial testing revealed that a snubber resistor was running excessively hot. The capacitance was subsequently decreased, and the resistance value was doubled to stabilize thermal performance.
+* **LM311 Comparators on Main PCB:** While LM311 comparators were provisioned directly on the main PCB layout, they **were ultimately bypassed / left unused** due to high-frequency noise interference (further discussed in the experimental results section).
+* **Direct Wire Jumpering:** Hardwired jumper wires were soldered directly to specific STM32 pins to bypass routing constraints.
+* **Header Re-purposing for Alternative I/O:** Pins originally allocated for a standard LCD screen (which was dropped in favor of the 3-button) were re-purposed as additional **I/O control lines** by soldering direct wires to the physical pin headers.
+* **Diode Current-Balancing Resistors:** For the gap spark-extinction path, two recycled ultrafast diodes were wired in **parallel**. To compensate for slight voltage-drop and characteristic disparities between recycled components, **balancing resistors** (specifically selected as close matching values of **0.22Ω and 0.24Ω** with a plain gray body finish) were integrated to ensure even current sharing across the diode bank.
+
+---
+
+## 3. Hardware Detail Galleries (As-Built Modfications)
+
+Here are detailed close-ups of the physical modifications, snubber builds, balancing components, and wiring workarounds implemented on the board:
+
+<!-- Foto de Detalle 1: Snubber 1 -->
+<p align="center">
+  <img src="../images/hardware/snubber_1_detail.jpeg" alt="Snubber Network 1 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+</p>
+<p align="center"><sub><i>Figure 3: Detail of Snubber Network #1 layout and multi-component footprint usage.</i></sub></p>
+
+<!-- Foto de Detalle 2: Snubber 2 -->
+<p align="center">
+  <img src="../images/hardware/snubber_2_detail.jpeg" alt="Snubber Network 2 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+</p>
+<p align="center"><sub><i>Figure 4: Detail of Snubber Network #2 layout modifications.</i></sub></p>
+
+<!-- Foto de Detalle 3: Snubber 3 -->
+<p align="center">
+  <img src="../images/hardware/snubber_3_detail.jpeg" alt="Snubber Network 3 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+</p>
+<p align="center"><sub><i>Figure 5: Detail of Snubber Network #3 tuning and thermal adjustments.</i></sub></p>
+
+<!-- Foto de Detalle 4: Resistencias de balanceo -->
+<p align="center">
+  <img src="../images/hardware/balancing_resistors.jpeg" alt="Ultrafast Diode Balancing Resistors" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+</p>
+<p align="center"><sub><i>Figure 6: Parallel ultrafast diodes with 0.22Ω and 0.24Ω plain gray balancing resistors.</i></sub></p>
+
+<!-- Foto de Detalle 5: Headers reutilizados -->
+<p align="center">
+  <img src="../images/hardware/reused_headers.jpeg" alt="Reused Headers for Alternative I/O" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+</p>
+<p align="center"><sub><i>Figure 7: Reused LCD pin headers wired as alternative control I/O lines.</i></sub></p>
+
+---
+
+## 4. Key Bill of Materials (BOM) & Component Choices
+Most components were selected based on local availability in Central America or recycling channels:
+
+| Component Category | Description / Source | Notes & Adaptations |
+| :--- | :--- | :--- |
+| **Power Switches (IGBTs / MOSFETs)** | Sourced via Temu / Salvaged | Selected for built-in flyback diodes, simplifying high-current protection without requiring heavy external diodes. |
+| **Energy Storage Capacitors** | MKP / pulse capacitors (Sourced via Amazon) | Used for the primary high-voltage pulse discharge bank and snubbers. Alternative capacitor types can be experimented with. |
+| **Power Supply** | 3x Telecom power units (-50VDC each) | Recycled from local scrap electronics, wired in series to supply the high-voltage rail. |
+| **Actuators & Mechanics** | NEMA 17 Stepper Motors + Linear Rail | Recycled from local scrap electronics/hardware repurposed to drive the Z-axis electrode feed. |
+| **Heatsinks** | Salvaged / Oversized | Sourced from whatever was available in the workshop. They are intentionally **oversized** for the current low-frequency operating envelope, but future-proofed for higher switching frequencies where thermal accumulation becomes noticeable. |
+
+*(Note: Refer to the `hardware/` folder in the repository for the full interactive KiCad BOM file and interactive HTML BOM viewer).*
+
 ---
 
 [⬅️ Back to Main](..)
