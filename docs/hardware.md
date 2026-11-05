@@ -99,7 +99,7 @@ Most components were selected based on local availability in Central America or 
 ## 5. Interactive Bill of Materials (BOM)
 For a complete, component-by-component breakdown, reference designators, and board layout verification, you can explore the interactive HTML BOM generated directly from KiCad:
 
-👉 **[View Interactive BOM (`ibom.html`)](https://foreber-v2.github.io/stm32-sinker-edm/tree/main/spark_gen_kicad/bom/ibom.html)**
+👉 **[View Interactive BOM (`ibom.html`)](https://foreber-v2.github.io/stm32-sinker-edm/spark_gen_kicad/bom/ibom.html)**
 
 *(Note: Since this repository is hosted on GitHub Pages, clicking the link above will open the fully searchable and interactive component viewer directly in your browser, allowing you to highlight components, check values, and cross-reference footprint locations on the PCB).*
 
