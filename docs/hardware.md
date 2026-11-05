@@ -27,17 +27,18 @@ This section covers the electronic design files for the main control and power b
 ## 2. On-the-Fly PCB Modifications & Practical Workarounds
 Because hardware validation happened iteratively, several physical modifications were implemented directly on the manufactured board:
 
-* **Via Patching & Pin Re-routing:** Manual via jumpers were soldered to correctly map switching nodes to the required STM32 timer pins (`t1c1` and `t1c1n`).
-* **Snubber Circuit Adaptability:** All snubber networks in the schematic were intentionally designed with footprints for **3 parallel capacitors and 3 parallel resistors**. This multi-footprint approach was chosen to handle resource constraints and future-proof the board; if initial bench tests required different capacitance or resistance values, alternative components from inventory could be dropped straight into the existing pads and vias without redesigning the PCB.
-* **Snubber Tuning (Empirical Result):** Initial testing revealed that a snubber resistor was running excessively hot. The capacitance was subsequently decreased, and the resistance value was doubled to stabilize thermal performance.
-* **LM311 Comparators on Main PCB:** While LM311 comparators were provisioned directly on the main PCB layout, they **were ultimately bypassed / left unused** due to high-frequency noise interference (further discussed in the experimental results section).
-* **Direct Wire Jumpering:** Hardwired jumper wires were soldered directly to specific STM32 pins to bypass routing constraints.
-* **Header Re-purposing for Alternative I/O:** Pins originally allocated for a standard LCD screen (which was dropped in favor of the 3-button) were re-purposed as additional **I/O control lines** by soldering direct wires to the physical pin headers.
-* **Diode Current-Balancing Resistors:** For the gap spark-extinction path, two recycled ultrafast diodes were wired in **parallel**. To compensate for slight voltage-drop and characteristic disparities between recycled components, **balancing resistors** (specifically selected as close matching values of **0.22Ω and 0.24Ω** with a plain gray body finish) were integrated to ensure even current sharing across the diode bank.
+- **Via Patching & Pin Re-routing:** Manual via jumpers were soldered to correctly map switching nodes to the required STM32 timer pins (`t1c1` and `t1c1n`).
+- **Snubber Circuit Adaptability:** All snubber networks in the schematic were intentionally designed with footprints for **3 parallel capacitors and 3 parallel resistors**. This multi-footprint approach was chosen to handle resource constraints and future-proof the board; if initial bench tests required different capacitance or resistance values, alternative components from inventory could be dropped straight into the existing pads and vias without redesigning the PCB.
+- **Snubber Tuning (Empirical Result):** Initial testing revealed that a snubber resistor was running excessively hot. The capacitance was subsequently decreased, and the resistance value was doubled to stabilize thermal performance.
+- **LM311 Comparators on Main PCB:** While LM311 comparators were provisioned directly on the main PCB layout, they **were ultimately bypassed / left unused** due to high-frequency noise interference (further discussed in the experimental results section).
+- **Direct Wire Jumpering:** Hardwired jumper wires were soldered directly to specific STM32 pins to bypass routing constraints.
+- **Header Re-purposing for Alternative I/O:** Pins originally allocated for a standard LCD screen (which was dropped in favor of the 3-button layout) were re-purposed as additional **I/O control lines** by soldering direct wires to the physical pin headers.
+- **Diode Current-Balancing Resistors:** For the gap spark-extinction path, two recycled ultrafast diodes were wired in **parallel**. To compensate for slight voltage-drop and characteristic disparities between recycled components, **balancing resistors** (specifically selected as close matching values of **0.22Ω and 0.24Ω** with a plain gray body finish) were integrated to ensure even current sharing across the diode bank.
+- **Current Shunt Resistor Modification:** The SMD current shunt configuration was modified by adjusting the quantity and series/parallel arrangement of resistors. It was transitioned from an initial target of **$10\text{ m}\Omega$** to approximately **$50\text{ m}\Omega$** (using an arrangement of 5 elements). This 5x increase in resistance scaled up the voltage drop across the shunt, significantly improving signal amplitude and readability for an economical, lower-sensitivity bench oscilloscope. While this introduces a minor trade-off in insertion impedance, it provides a practical, clear approximation of current flow and a healthy margin for signal capture during testing.
 
 ---
 
-## 3. Hardware Detail Galleries (As-Built Modfications)
+## 3. Hardware Detail Galleries (As-Built Modifications)
 
 Here are detailed close-ups of the physical modifications, snubber builds, balancing components, and wiring workarounds implemented on the board:
 
