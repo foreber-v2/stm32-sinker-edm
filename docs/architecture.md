@@ -21,7 +21,7 @@ For this build, two competing topological approaches were evaluated regarding ho
 * **Why the Second Configuration Was Chosen:**  
   While the first configuration relies on standard switching, the **second configuration** was selected because it provides a **significantly faster spark extinction rate**. 
 * **Operating Principle:**  
-  When a spark completes or an unwanted condition occurs, the voltage across the inductor rises automatically, because of the opening of igbt 3. This voltage spike forward-biases a discharge path, enabling a fast and efficient discharge back into the main storage capacitor. This rapid quenching prevents excessive thermal buildup and gives cleaner control over the ~60 µs pulse width managed by the LM311 comparators.
+  When a spark completes or an unwanted condition occurs, the voltage across the inductor rises automatically, because of the opening of igbt 3. This voltage spike forward-biases a discharge path, enabling a fast and efficient discharge back into the main storage capacitor. This rapid quenching prevents excessive thermal buildup and gives cleaner control over the ~60 µs pulse width managed by the LM311 comparators. This is faster because at a higher voltage difference between the leads of an inductor, the faster de dI/dt.
 
 <!-- Espacio para el diagrama de las dos configuraciones (Topología y secuencia de inductor/chispa) -->
 <p align="center">
