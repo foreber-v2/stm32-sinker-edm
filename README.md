@@ -82,7 +82,7 @@ Explore the detailed technical documentation for each subsystem below:
 
 * **[B. System Architecture](docs/architecture.md)** — Block diagrams, power electronics topology, control loop logic, and user interface layout.
 * **[C. Hardware & Bill of Materials](docs/hardware.md) (Coming Soon)** — KiCad schematics, single-sided PCB design files, recycled component sourcing, and physical assembly guides.
-* **[D. Firmware & Control Logic](firmware/README.md) (Coming Soon)** — Keil uVision project structure, state machines, pulse-monitoring routines, and safety/fault handling.
+* **[D. Firmware & Control Logic](docs/control.md) (Coming Soon)** — Keil uVision project structure, state machines, pulse-monitoring routines, and safety/fault handling.
 * **[E. Experimental Results & Oscilloscope Captures](docs/experimental-results.md) (Coming Soon)** — Short/open-circuit waveforms, gate drive signals, current noise analysis, cutting tests, and limitations.
 * **[F. Engineering Decisions & Trade-offs](docs/engineering-decisions.md) (Coming Soon)** — Sinker vs. Wire EDM choice, reusing telecom power supplies (-50VDC), opting for IGBTs with built-in flyback diodes, and cost optimization.
 * **[G. Future Improvements](docs/future-improvements.md) (Coming Soon)** — Fluid flushing systems, advanced instrumentation, closed-loop actuator speed optimization, and next-gen roadmap.
