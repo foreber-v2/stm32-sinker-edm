@@ -36,6 +36,10 @@ Because hardware validation happened iteratively, several physical modifications
 - **Diode Current-Balancing Resistors:** For the gap spark-extinction path, two recycled ultrafast diodes were wired in **parallel**. To compensate for slight voltage-drop and characteristic disparities between recycled components, **balancing resistors** (specifically selected as close matching values of **0.22Ω and 0.24Ω** with a plain gray body finish) were integrated to ensure even current sharing across the diode bank.
 - **Current Shunt Resistor Modification:** The SMD current shunt configuration was modified by adjusting the quantity and series/parallel arrangement of resistors. It was transitioned from an initial target of **$10\text{ m}\Omega$** to approximately **$50\text{ m}\Omega$** (using an arrangement of 5 elements). This 5x increase in resistance scaled up the voltage drop across the shunt, significantly improving signal amplitude and readability for an economical, lower-sensitivity handheld oscilloscope. While this introduces a minor trade-off in insertion impedance, it provides a practical, clear approximation of current flow and a healthy margin for signal capture during testing.
 
+<p align="center">
+  <img src="../images/photos_of_hardware/pcb_milled_back.jpg" alt="Back of pcb Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+</p>
+<p align="center"><sub><i>Figure 3: PCB with corrections and on the fly modifications.</i></sub></p>
 ---
 
 ## 3. Hardware Detail Galleries (As-Built Modifications)
@@ -46,37 +50,38 @@ Here are detailed close-ups of the physical modifications, snubber builds, balan
 <p align="center">
   <img src="../images/detail_snubbers_others/snubber_sw_1.jpg" alt="Snubber Network 1 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
-<p align="center"><sub><i>Figure 3: Detail of Snubber Network #1 layout and multi-component footprint usage, for SW1(Q6).</i></sub></p>
+<p align="center"><sub><i>Figure 4: Detail of Snubber Network #1 layout and multi-component footprint usage, for SW1(Q6).</i></sub></p>
 
 <!-- Foto de Detalle 2: Snubber 2 -->
 <p align="center">
   <img src="../images/detail_snubbers_others/snubber_sw_2.jpg" alt="Snubber Network 2 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
-<p align="center"><sub><i>Figure 4: Detail of Snubber Network #2 layout and multi-component footprint usage, for SW2(Q7).</i></sub></p>
+<p align="center"><sub><i>Figure 5: Detail of Snubber Network #2 layout and multi-component footprint usage, for SW2(Q7).</i></sub></p>
 
 <!-- Foto de Detalle 3: Snubber 3 -->
 <p align="center">
   <img src="../images/detail_snubbers_others/snubber_sw_3.jpg" alt="Snubber Network 3 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
-<p align="center"><sub><i>Figure 5: Detail of Snubber Network #3 layout and multi-component footprint usage, for SW3(Q1).</i></sub></p>
+<p align="center"><sub><i>Figure 6: Detail of Snubber Network #3 layout and multi-component footprint usage, for SW3(Q1).</i></sub></p>
 
+<!-- Foto de Detalle 4: Snubber 4 -->
 <p align="center">
   <img src="../images/detail_snubbers_others/snubber_extinguisher.jpg" alt="Snubber Network 4 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
-<p align="center"><sub><i>Figure 6: Detail of Snubber Network #4 tuning and thermal adjustments, for extinguishing Diodes(D21, D22).</i></sub></p>
+<p align="center"><sub><i>Figure 7: Detail of Snubber Network #4 tuning and thermal adjustments, for extinguishing Diodes(D21, D22).</i></sub></p>
 
 
-<!-- Foto de Detalle 4: Resistencias de balanceo -->
+<!-- Foto de Detalle 5: Resistencias de balanceo -->
 <p align="center">
   <img src="../images/detail_snubbers_others/balance_resistors.jpg" alt="Ultrafast Diode Balancing Resistors" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
-<p align="center"><sub><i>Figure 7: Parallel ultrafast diodes with 0.22Ω and 0.24Ω plain gray balancing resistors.</i></sub></p>
+<p align="center"><sub><i>Figure 8: Parallel ultrafast diodes with 0.22Ω and 0.24Ω plain gray balancing resistors.</i></sub></p>
 
-<!-- Foto de Detalle 5: Headers reutilizados -->
+<!-- Foto de Detalle 6: Headers reutilizados -->
 <p align="center">
   <img src="../images/detail_snubbers_others/reused_pins.jpg" alt="Reused Headers for Alternative I/O" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
-<p align="center"><sub><i>Figure 8: Reused LCD pin headers wired as alternative control I/O lines.</i></sub></p>
+<p align="center"><sub><i>Figure 9: Reused LCD pin headers wired as alternative control I/O lines.</i></sub></p>
 
 ---
 
