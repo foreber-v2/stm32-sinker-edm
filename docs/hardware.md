@@ -96,7 +96,12 @@ Most components were selected based on local availability in Central America or 
 | **Actuators & Mechanics** | NEMA 17 Stepper Motors + Linear Rail | Recycled from local scrap electronics/hardware repurposed to drive the Z-axis electrode feed. |
 | **Heatsinks** | Salvaged / Oversized | Sourced from whatever was available in the workshop. They are intentionally **oversized** for the current low-frequency operating envelope, but future-proofed for higher switching frequencies where thermal accumulation becomes noticeable. |
 
-*(Note: Refer to the `hardware/` folder in the repository for the full KiCad BOM file).*
+## 5. Interactive Bill of Materials (BOM)
+For a complete, component-by-component breakdown, reference designators, and board layout verification, you can explore the interactive HTML BOM generated directly from KiCad:
+
+👉 **[View Interactive BOM (`ibom.html`)](spark_gen_kicad/bom/ibom.html)**
+
+*(Note: Since this repository is hosted on GitHub Pages, clicking the link above will open the fully searchable and interactive component viewer directly in your browser, allowing you to highlight components, check values, and cross-reference footprint locations on the PCB).*
 
 ---
 
