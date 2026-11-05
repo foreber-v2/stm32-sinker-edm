@@ -87,12 +87,12 @@ Most components were selected based on local availability in Central America or 
 | Component Category | Description / Source | Notes & Adaptations |
 | :--- | :--- | :--- |
 | **Power Switches (IGBTs / MOSFETs)** | Sourced via Temu / Salvaged | Selected for built-in flyback diodes, simplifying high-current protection without requiring heavy external diodes. |
-| **Energy Storage Capacitors** | MKP / pulse capacitors (Sourced via Amazon) | Used for the primary high-voltage pulse discharge bank and snubbers. Alternative capacitor types can be experimented with. |
+| **Energy Storage Capacitors** | MKP (10uF & 22nF both >= 250V) / pulse capacitors (Sourced via Amazon) | Used for the primary high-voltage pulse discharge bank and snubbers. Alternative capacitor types can be experimented with. |
 | **Power Supply** | 3x Telecom power units (-50VDC each) | Recycled from local scrap electronics, wired in series to supply the high-voltage rail. |
 | **Actuators & Mechanics** | NEMA 17 Stepper Motors + Linear Rail | Recycled from local scrap electronics/hardware repurposed to drive the Z-axis electrode feed. |
 | **Heatsinks** | Salvaged / Oversized | Sourced from whatever was available in the workshop. They are intentionally **oversized** for the current low-frequency operating envelope, but future-proofed for higher switching frequencies where thermal accumulation becomes noticeable. |
 
-*(Note: Refer to the `hardware/` folder in the repository for the full interactive KiCad BOM file and interactive HTML BOM viewer).*
+*(Note: Refer to the `hardware/` folder in the repository for the full KiCad BOM file).*
 
 ---
 
