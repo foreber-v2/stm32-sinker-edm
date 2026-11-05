@@ -12,13 +12,13 @@ This section covers the electronic design files for the main control and power b
 
 <!-- Espacio para la captura del Esquemático -->
 <p align="center">
-  <img src="../images/diagrams/schematic_overview.jpeg" alt="KiCad Schematic Overview" width="650px" style="border-radius: 6px; border: 1px solid #ddd;">
+  <img src="../images/captures_kicad/schematic_capture.png" alt="KiCad Schematic Overview" width="650px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
 <p align="center"><sub><i>Figure 1: Main schematic overview designed in KiCad.</i></sub></p>
 
 <!-- Espacio para la captura del PCB Layout -->
 <p align="center">
-  <img src="../images/diagrams/pcb_layout.jpeg" alt="PCB Layout and Copper Routes" width="650px" style="border-radius: 6px; border: 1px solid #ddd;">
+  <img src="../images/captures_kicad/layout_capture.png" alt="PCB Layout and Copper Routes" width="650px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
 <p align="center"><sub><i>Figure 2: Single-sided PCB layout showing traces, via placements, and routing.</i></sub></p>
 
@@ -44,33 +44,40 @@ Here are detailed close-ups of the physical modifications, snubber builds, balan
 
 <!-- Foto de Detalle 1: Snubber 1 -->
 <p align="center">
-  <img src="../images/hardware/snubber_1_detail.jpeg" alt="Snubber Network 1 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+  <img src="../images/detail_snubbers_others/snubber_sw_1.jpg" alt="Snubber Network 1 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
-<p align="center"><sub><i>Figure 3: Detail of Snubber Network #1 layout and multi-component footprint usage.</i></sub></p>
+<p align="center"><sub><i>Figure 3: Detail of Snubber Network #1 layout and multi-component footprint usage, for SW1(Q6).</i></sub></p>
 
 <!-- Foto de Detalle 2: Snubber 2 -->
 <p align="center">
-  <img src="../images/hardware/snubber_2_detail.jpeg" alt="Snubber Network 2 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+  <img src="../images/detail_snubbers_others/snubber_sw_2.jpg" alt="Snubber Network 2 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
-<p align="center"><sub><i>Figure 4: Detail of Snubber Network #2 layout modifications.</i></sub></p>
+<p align="center"><sub><i>Figure 4: Detail of Snubber Network #2 layout and multi-component footprint usage, for SW2(Q7).</i></sub></p>
 
 <!-- Foto de Detalle 3: Snubber 3 -->
 <p align="center">
-  <img src="../images/hardware/snubber_3_detail.jpeg" alt="Snubber Network 3 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+  <img src="../images/detail_snubbers_others/snubber_sw_3.jpg" alt="Snubber Network 3 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
-<p align="center"><sub><i>Figure 5: Detail of Snubber Network #3 tuning and thermal adjustments.</i></sub></p>
+<p align="center"><sub><i>Figure 5: Detail of Snubber Network #3 layout and multi-component footprint usage, for SW3(Q1).</i></sub></p>
+
+!-- Foto de Detalle 4: Snubber 4 -->
+<p align="center">
+  <img src="../images/detail_snubbers_others/snubber_extinguisher.jpg" alt="Snubber Network 4 Detail" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+</p>
+<p align="center"><sub><i>Figure 6: Detail of Snubber Network #4 tuning and thermal adjustments, for extinguishing Diodes(D21, D22).</i></sub></p>
+
 
 <!-- Foto de Detalle 4: Resistencias de balanceo -->
 <p align="center">
-  <img src="../images/hardware/balancing_resistors.jpeg" alt="Ultrafast Diode Balancing Resistors" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+  <img src="../images/detail_snubbers_others/balance_resistors.jpg" alt="Ultrafast Diode Balancing Resistors" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
-<p align="center"><sub><i>Figure 6: Parallel ultrafast diodes with 0.22Ω and 0.24Ω plain gray balancing resistors.</i></sub></p>
+<p align="center"><sub><i>Figure 7: Parallel ultrafast diodes with 0.22Ω and 0.24Ω plain gray balancing resistors.</i></sub></p>
 
 <!-- Foto de Detalle 5: Headers reutilizados -->
 <p align="center">
-  <img src="../images/hardware/reused_headers.jpeg" alt="Reused Headers for Alternative I/O" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
+  <img src="../images/detail_snubbers_others/reused_pins.jpg" alt="Reused Headers for Alternative I/O" width="500px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
-<p align="center"><sub><i>Figure 7: Reused LCD pin headers wired as alternative control I/O lines.</i></sub></p>
+<p align="center"><sub><i>Figure 8: Reused LCD pin headers wired as alternative control I/O lines.</i></sub></p>
 
 ---
 
