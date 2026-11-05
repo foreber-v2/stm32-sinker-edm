@@ -18398,7 +18398,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10uF"
+		(property "Value" "10uF MKP"
 			(at 186.69 93.9799 0)
 			(show_name no)
 			(do_not_autoplace no)
@@ -26216,7 +26216,7 @@
 				(justify left)
 			)
 		)
-		(property "Value" "10uF"
+		(property "Value" "10uF MKP"
 			(at 193.04 93.9799 0)
 			(show_name no)
 			(do_not_autoplace no)
