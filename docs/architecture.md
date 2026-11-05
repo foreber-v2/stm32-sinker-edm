@@ -9,7 +9,7 @@ The machine is built around a modular architecture separating the high-voltage p
 
 <!-- Espacio para tu diagrama de bloques -->
 <p align="center">
-  <img src="..images/diagrams/general_block_diag.jpeg" alt="System Block Diagram" width="600px" style="border-radius: 6px; border: 1px solid #ddd;">
+  <img src="../images/diagrams/general_block_diag.jpeg" alt="System Block Diagram" width="600px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
 <p align="center"><sub><i>Figure 1: High-level system block diagram.</i></sub></p>
 
@@ -25,7 +25,7 @@ For this build, two competing topological approaches were evaluated regarding ho
 
 <!-- Espacio para el diagrama de las dos configuraciones (Topología y secuencia de inductor/chispa) -->
 <p align="center">
-  <img src="..images/diagrams/idea.jpg" alt="Topologies Comparison and Spark Extinction" width="650px" style="border-radius: 6px; border: 1px solid #ddd;">
+  <img src="../images/diagrams/idea.jpg" alt="Topologies Comparison and Spark Extinction" width="650px" style="border-radius: 6px; border: 1px solid #ddd;">
 </p>
 <p align="center"><sub><i>Figure 2: Topological configurations showing inductor charging, spark presence/absence, and the extinction mechanism.</i></sub></p>
 
