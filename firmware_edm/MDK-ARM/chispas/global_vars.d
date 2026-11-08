@@ -1,1 +1,1 @@
-chispas/global_vars.o: global_vars.c ..\Core\Inc\global_vars.h
+chispas/global_vars.o: Core\Src\global_vars.c Core\Inc\global_vars.h

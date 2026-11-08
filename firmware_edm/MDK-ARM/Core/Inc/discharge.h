@@ -1,25 +1,7 @@
 /* discharge.h
  * Driver para ciclo de descarga via TIM1 CH1/CH1N/CH2
  * Blue Pill STM32F103C8 - LL drivers
- *
- * Secuencia de un ciclo (tiempos aproximados, deadtime ~0.5us en hardware):
- *
- *  t=0        t=100    t=100.5  t=102.5  t=130.5        t=202.5
- *  |            |        |        |          |               |
- *  CH1N: [=100us=]      [dt]     [====100us (desde t=102.5)====]LOW
- *  CH1:          [dt]   [=2us=]LOW
- *  CH2:                 [=========30us=========]LOW
- *
- * Tramos del codigo:
- *   TRAMO 1: CH1N solo,   100us  ARR=99,  CCR1=100 (CCR1>ARR → CH1N siempre HIGH)
- *   TRAMO 2: CH1+CH2,       2us  ARR=1,   CCR1=0, CCR2=0
- *            al terminar: CH1 baja, CH1N sube (complementario+deadtime), CH2 sigue
- *   TRAMO 3: CH2+CH1N,     28us  ARR=27,  CCR2=0, CCR1=100
- *            al terminar: CH2 LOW (ultima instruccion de programa)
- *            CH1N sigue activo, timer continua
- *   TRAMO 4: CH1N solo,    72us  ARR=71,  CCR1=100
- *            al terminar: todo apagado (fin hardware)
- *
+
  * TIM1: Prescaler=71 → 1 tick = 1us a 72MHz
  *       Modo repetitivo con IRQ de Update (UIF) al fin de cada tramo
  *       Deadtime BDTR=35 ticks a 72MHz ≈ 486ns ≈ 500ns
