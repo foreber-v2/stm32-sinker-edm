@@ -29,6 +29,7 @@ fp-info-cache
 # Archivos Temporales de Keil uVision (ARM/MDK)
 # ==========================================
 # Carpetas de compilación (archivos .o, .d, .axf, .hex, etc.)
+chispas/
 Objects/
 Listings/
 build/
@@ -48,6 +49,11 @@ build/
 *.htm
 *.lnp
 *.sfr
+*.o
+*.d
+*.crf
+*.axf
+*.map
 
 # Archivos de depuración y estado de sesión
 *.build_log.htm
