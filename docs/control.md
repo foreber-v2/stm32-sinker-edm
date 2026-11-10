@@ -279,17 +279,39 @@ One pulse is defined by four compare values, with 1 tick = 1 µs:
 ### Driver state machine
 
 ```mermaid
-stateDiagram-v2
-    direction LR
+[*] --> DIS_IDLE : Discharge_Init() / tim1_stop()
 
-    [*] --> IDLE : Discharge_Init()
+DIS_IDLE : IDLE
+DIS_IDLE : dis_busy = 0
+DIS_IDLE : timer stopped, MOE = 0
+DIS_IDLE : CH2 mode = ACTIVE
 
-    IDLE --> RUNNING_SINGLE : RunCycle_Once
-    IDLE --> RUNNING_TRAIN : RunCycle_Train, cont_pulsos = 0
+DIS_ONCE : RUNNING SINGLE
+DIS_ONCE : dis_busy = 1
+DIS_ONCE : tipo_descarga = 0
 
-    RUNNING_SINGLE --> IDLE : CC3 event, tim1_stop()
-    RUNNING_TRAIN --> RUNNING_TRAIN : CC3 event, cont_pulsos below NUM_PULSES, re-arm CH2
-    RUNNING_TRAIN --> IDLE : CC3 event, cont_pulsos reached NUM_PULSES, tim1_stop()
+DIS_TRAIN : RUNNING TRAIN
+DIS_TRAIN : dis_busy = 1
+DIS_TRAIN : tipo_descarga = 1
+DIS_TRAIN : cont_pulsos counts pulses
+
+DIS_IDLE --> DIS_ONCE : Discharge_RunCycle_Once() / tim1_fire()
+DIS_IDLE --> DIS_TRAIN : Discharge_RunCycle_Train() / cont_pulsos = 0, tim1_fire()
+
+DIS_ONCE --> DIS_IDLE : CC3 event / tim1_stop(), dis_busy = 0
+
+DIS_TRAIN --> DIS_TRAIN : CC3 event, cont_pulsos below NUM_PULSES / re-arm CH2 (OCMODE_ACTIVE)
+DIS_TRAIN --> DIS_IDLE : CC3 event, cont_pulsos reached NUM_PULSES / tim1_stop(), dis_busy = 0
+
+note right of DIS_TRAIN
+    Inside every pulse (1 tick = 1 us)
+    0 : CH1 HIGH, CH1N complementary
+    CCR2 (11) : CH2 HIGH
+    CCR1 (23) : CH1 LOW
+    CC4 (50) : ISR forces CH2 LOW (FORCED_INACTIVE)
+    CC3 (59) : end of pulse event
+    ARR (60) : counter wraps
+end note
 ```
 
 ### Interrupt-driven pulse control
@@ -327,15 +349,39 @@ One full step takes two interrupts: a rising edge (counted as a step) and a fall
 stateDiagram-v2
     direction LR
 
-    [*] --> IDLE : Stepper_Init()
+    [*] --> STEP_IDLE : Stepper_Init() / Stepper_Stop()
 
-    IDLE --> STEP_LOW : start move, set DIR and planned_steps, start TIM2
-    STEP_LOW --> STEP_HIGH : update IRQ, steps remaining, completed_steps++
-    STEP_HIGH --> STEP_LOW : update IRQ, steps remaining
-    STEP_HIGH --> IDLE : update IRQ, target reached, Stepper_Stop()
+STEP_IDLE : IDLE
+STEP_IDLE : step_busy = 0
+STEP_IDLE : TIM2 stopped, STEP low
+STEP_IDLE : completed_steps = 0
 
-    STEP_LOW --> IDLE : Stepper_Stop()
-    STEP_HIGH --> IDLE : Stepper_Stop()
+STEP_LOW : STEP LOW phase
+STEP_LOW : step_busy = 1
+STEP_LOW : step_state = 0
+
+STEP_HIGH : STEP HIGH phase
+STEP_HIGH : step_busy = 1
+STEP_HIGH : step_state = 1
+
+STEP_IDLE --> STEP_LOW : Stepper_Mov_Slow / Mov_Mid / Mov_Fast - set planned_steps and DIR, start TIM2
+
+STEP_LOW --> STEP_HIGH : TIM2 update, completed_steps below planned_steps / step_high(), completed_steps++
+STEP_HIGH --> STEP_LOW : TIM2 update, completed_steps below planned_steps / step_low()
+STEP_HIGH --> STEP_IDLE : TIM2 update, completed_steps reached planned_steps / step_low(), Stepper_Stop()
+
+STEP_LOW --> STEP_IDLE : Stepper_Stop() called externally
+STEP_HIGH --> STEP_IDLE : Stepper_Stop() called externally
+
+note right of STEP_IDLE
+    Move sizes (planned_steps)
+    Mov_Slow : NUM_APROX_STEPS = 1
+    Mov_Mid : NUM_STEPS_MID = 50
+    Mov_Rapido : NUM_QUICK_STEPS = 35000
+    Phase time = TIME_BETWEEN_STEPS ticks
+    1 step = 2 TIM2 interrupts
+    Calls while busy return 0 and are ignored
+end note
 ```
 
 - A new move request is **ignored while the driver is busy** (the function returns 1).
