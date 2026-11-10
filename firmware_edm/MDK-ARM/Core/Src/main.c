@@ -252,7 +252,7 @@ int main(void)
                     /* DEBUG alternatives (not needed for normal operation):
                      *   Discharge_RunCycle_Once();        // final single-discharge cycle
                      *   Discharge_RunCycle_Train();        // debug only: approach test without electrolysis
-                     *   Stepper_Aprox_Inicial(BAJA);
+                     *   Stepper_Mov_Slow(BAJA);
                      *   app_state = STATE_DISCHARGE_ONCE;
                      */
                     app_state = STATE_READING;
@@ -276,7 +276,7 @@ int main(void)
                     led_red_on();
 
                     /* DEBUG: Discharge_RunCycle_Train(); */
-                    Stepper_Mov_Rapido(SUBE);
+                    Stepper_Mov_Fast(SUBE);
                     app_state = STATE_LOCKOUT;
 										state_entry_tick = now;
                 }
@@ -379,7 +379,7 @@ int main(void)
                         down_steps_done++;
                         sparks = 0;
                         shorts = 0;
-                        Stepper_Aprox_Inicial(BAJA);
+                        Stepper_Mov_Slow(BAJA);
                         app_state = STATE_FORWARD;
                     }
                     else

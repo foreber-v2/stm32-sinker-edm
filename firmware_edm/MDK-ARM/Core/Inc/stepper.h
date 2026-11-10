@@ -52,7 +52,7 @@ void Stepper_Init(void);
  * @param  direction  BAJA (0) or SUBE (1)
  * @retval 1 if the move was started, 0 if the driver was busy
  */
-uint8_t Stepper_Aprox_Inicial(uint8_t direction);
+uint8_t Stepper_Mov_Slow(uint8_t direction);
 
 /**
  * @brief  Starts a medium move (NUM_STEPS_MID steps).
@@ -68,7 +68,7 @@ uint8_t Stepper_Mov_Mid(uint8_t direction);
  * @param  direction  BAJA (0) or SUBE (1)
  * @retval 1 if the move was started, 0 if the driver was busy
  */
-uint8_t Stepper_Mov_Rapido(uint8_t direction);
+uint8_t Stepper_Mov_Fast(uint8_t direction);
 
 /**
  * @brief  Stops any move: disables TIM2, sets STEP low and resets the

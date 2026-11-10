@@ -6,7 +6,7 @@
  *
  * INTERNAL STATE MACHINE (full diagram in stepper_fsm.mermaid)
  *
- *   IDLE --Stepper_Aprox_Inicial / Mov_Mid / Mov_Rapido--> STEP_LOW (waiting)
+ *   IDLE --Stepper_Mov_Slow / Mov_Mid / Mov_Rapido--> STEP_LOW (waiting)
  *   STEP_LOW  --TIM2 update, completed_steps < planned_steps--> STEP_HIGH (completed_steps++)
  *   STEP_HIGH --TIM2 update, completed_steps < planned_steps--> STEP_LOW
  *   STEP_HIGH --TIM2 update, completed_steps = planned_steps--> IDLE (Stepper_Stop)
@@ -95,7 +95,7 @@ uint8_t Stepper_IsBusy(void)
 }
 
 /* Fine approach move (NUM_APROX_STEPS). Returns 1 if busy, 0 if started. */
-uint8_t Stepper_Aprox_Inicial(uint8_t direction)
+uint8_t Stepper_Mov_Slow(uint8_t direction)
 {
     if (step_busy) return 0;
 
@@ -117,7 +117,7 @@ uint8_t Stepper_Aprox_Inicial(uint8_t direction)
 }
 
 /* Fast move (NUM_QUICK_STEPS). Returns 1 if busy, 0 if started. */
-uint8_t Stepper_Mov_Rapido(uint8_t direction)
+uint8_t Stepper_Mov_Fast(uint8_t direction)
 {
     if (step_busy) return 0;
 
