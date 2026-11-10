@@ -130,7 +130,7 @@ uint8_t Discharge_IsBusy(void)
 
 uint8_t Discharge_RunCycle_Train(void)
 {
-    if (dis_busy) return 1;   
+    if (dis_busy) return 0;   
 
     tipo_descarga = 1;
     dis_busy      = 1;
@@ -149,7 +149,7 @@ uint8_t Discharge_RunCycle_Train(void)
 
 uint8_t Discharge_RunCycle_Once(void)
 {
-    if (dis_busy) return 1;
+    if (dis_busy) return 0;
 
     tipo_descarga = 0;
     dis_busy      = 1;
