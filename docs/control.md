@@ -279,6 +279,8 @@ One pulse is defined by four compare values, with 1 tick = 1 µs:
 ### Driver state machine
 
 ```mermaid
+stateDiagram-v2
+    direction LR
 [*] --> DIS_IDLE : Discharge_Init() / tim1_stop()
 
 DIS_IDLE : IDLE
