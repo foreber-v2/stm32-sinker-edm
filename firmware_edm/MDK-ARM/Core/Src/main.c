@@ -1,240 +1,221 @@
-/* main.c — Blue Pill STM32F103C8
- * FSM principal: IDLE ? RELE_ON ? WAIT_5S ? READY ? DISCHARGE ? LOCKOUT ? READY
+/**
+ ******************************************************************************
+ * @file    main.c
+ * @brief   Main application - Blue Pill (STM32F103C8)
+ *          Capacitor-discharge machining controller (stepper + PWM discharge).
+ ******************************************************************************
  *
- * Pines:
- *   PB4  LED verde  (pull-up externo, activo HIGH)
- *   PB3  LED rojo   (pull-up externo, activo HIGH)
- *   PB5  Rele       (activo HIGH)
- *   PA4  Pulsador   (pull-up externo, activo LOW — EXTI4 falling edge)
- *   PA8  TIM1_CH1   (PWM descarga)
- *   PA9  TIM1_CH2
- *   PB13 TIM1_CH1N  (PWM complementario)
+ * FINITE STATE MACHINE (summary - full diagram in fsm_diagram.mermaid)
+ *
+ *   IDLE --GO--> RELAY_ON --8 s--> WAIT_XMS --100 ms--> READY
+ *
+ *   READY --GO--> READING <---------------------------------------+
+ *   READY --A---> LOCKOUT --500 ms--> READY                       |
+ *   READY --B---> BLEEDING --8 s--> IDLE                          |
+ *                                                                 |
+ *   READING --no sparks / no shorts--> FORWARD  --stepper done--> DISCHARGE_CONT
+ *   READING --otherwise--------------> BACKWARD --stepper done--> DISCHARGE_CONT
+ *   READING --sparks > shorts--------> DISCHARGE_CONT (pulse train)
+ *   READING --down_steps_done > 3500-> READY
+ *
+ *   DISCHARGE_CONT --done, B pressed--> LOCKOUT
+ *   DISCHARGE_CONT --done-------------> READING
+ *
+ * PIN MAP
+ *   PB4   LED green        (driven LOW = ON)
+ *   PB3   LED red          (driven LOW = ON)
+ *   PC13  LED safe         (driven LOW = ON)
+ *   PB5   Master relay     (driven HIGH = ON)
+ *   PB7   Charge relay     (driven LOW  = ON)
+ *   PB1   Bleeder MOSFET   (driven LOW  = ON)
+ *   PA4   Button GO        (external pull-up, active LOW, EXTI4 falling edge)
+ *   PA15  Button A         (external pull-up, active LOW)
+ *   PA10  Button B         (external pull-up, active LOW)
+ *   PA8   TIM1_CH1         (discharge PWM)
+ *   PA9   TIM1_CH2
+ *   PB13  TIM1_CH1N        (complementary PWM)
+ *
+ * NOTE: Lines marked "DEBUG" are commented-out code kept from bring-up and
+ *       testing sessions. They are NOT needed for normal operation. They can be
+ *       deleted safely, or re-enabled to run additional tests.
+ ******************************************************************************
  */
 
 /* USER CODE BEGIN Header */
 /* USER CODE END Header */
 
+/* -- Includes --------------------------------------------------------------- */
+/* USER CODE BEGIN Includes */
 #include "main.h"
 #include "adc.h"
 #include "dma.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
-
-/* USER CODE BEGIN Includes */
 #include "discharge.h"
 #include "stepper.h"
-#include "global_vars.h" 
+#include "global_vars.h"
 /* USER CODE END Includes */
 
-/* -- Definiciones de pines --------------------------------------------- */
-/* USER CODE BEGIN PD */
-#define LED_GREEN_PIN       LL_GPIO_PIN_4
-#define LED_GREEN_PORT      GPIOB
-
-#define LED_RED_PIN         LL_GPIO_PIN_3
-#define LED_RED_PORT        GPIOB
-
-#define RELAY_MASTER_PIN    LL_GPIO_PIN_5
-#define RELAY_MASTER_PORT   GPIOB
-
-#define RELAY_CARGA_PIN     LL_GPIO_PIN_7
-#define RELAY_CARGA_PORT    GPIOB
-
-#define MOSFET_BLEEDER_PIN  LL_GPIO_PIN_1
-#define MOSFET_BLEEDER_PORT GPIOB
-
-#define BTN_GO_PIN          LL_GPIO_PIN_4
-#define BTN_GO_PORT         GPIOA
-
-#define BTN_A_PIN           LL_GPIO_PIN_15
-#define BTN_A_PORT          GPIOA
-
-#define BTN_B_PIN           LL_GPIO_PIN_10
-#define BTN_B_PORT          GPIOA
-
-#define LED_SAFE_PIN        LL_GPIO_PIN_13	
-#define LED_SAFE_PORT       GPIOC
-
-/* Tiempos en ms (SysTick a 1ms) */
-#define TIME_RELAY_WAIT_MS      8000
-#define TIME_RELAY_DEL_WAIT_MS  100
-#define TIME_LOCKOUT_MS         500
-#define TIME_BLEEDING_WAIT_MS   8000
-#define TIME_BLINK_IDLE_MS      500	  /* parpadeo LED verde en IDLE */
-#define TIME_BLINK_LOCKOUT_MS   200   /* parpadeo LED rojo en LOCKOUT */
-#define BAJA										0
-#define SUBE										1
-
-volatile uint8_t tren = 0;
-volatile uint32_t sparks_effective = 0;
-volatile uint32_t sparks_ineffective = 0;
-
-volatile uint32_t test_start_ms = 0;
-volatile uint32_t test_elapsed_ms = 0;
-
-#define TARGET_SPARKS 10000U
-
-/* USER CODE END PD */
-
-/* -- Estados de la FSM ------------------------------------------------- */
-/* USER CODE BEGIN PTD */
-typedef enum {
-    STATE_IDLE = 0,     		/* LED verde parpadea, espera boton reles apagados */
-    STATE_RELAY_ON,     		/* Reles activados, transicion inmediata */
-    STATE_WAIT_5S,      		/* LED rojo fijo, 5s de espera */
-    STATE_READY,        		/* LED verde fijo, espera boton para descarga */
-		STATE_AVANCE,						/* Stepper inicia un ciclo de pasos adelante y espera */
-		STATE_RETROCESO,				/* Stepper inicia un ciclo de pasos atras y espera */
-		STATE_LECTURA,					/* Se leen los datos de shorts y sparks, se mueve o da descargas acorde */
-    STATE_DISCHARGE_CONT, 	/* Ejecutando ciclo de pulsos */
-		STATE_DISCHARGE_UNICO,  /* Ejecutando pulso unico */
-		STATE_BLEEDING,					/* Se bloquea y despliega led safe, mientras bleeding */
-    STATE_LOCKOUT       		/* 5s bloqueado post-descarga, LED rojo parpadea */
-} AppState_t;
-/* USER CODE END PTD */
-
-/* -- Variables globales ------------------------------------------------ */
+/* -- Private variables ------------------------------------------------------ */
 /* USER CODE BEGIN PV */
-static volatile AppState_t app_state = STATE_IDLE;
-static volatile uint32_t down_steps_done = 0;
+
+/* FSM state and approach-step counter */
+static volatile AppState_t app_state       = STATE_IDLE;
+static volatile uint32_t   down_steps_done = 0;   /* Consecutive downward steps without finding sparks */
+
+/* DEBUG: counters used only by the commented-out test code below.
+ * Not needed for normal operation. */
+volatile uint8_t  tren               = 0;   /* DEBUG: flag, a pulse train was launched   */
+volatile uint32_t sparks_effective   = 0;   /* DEBUG: accumulated effective sparks       */
+volatile uint32_t sparks_ineffective = 0;   /* DEBUG: accumulated ineffective sparks     */
+volatile uint32_t test_start_ms      = 0;   /* DEBUG: test start timestamp               */
+volatile uint32_t test_elapsed_ms    = 0;   /* DEBUG: test elapsed time                  */
 
 /* USER CODE END PV */
 
-/* -- Prototipos privados ----------------------------------------------- */
-void SystemClock_Config(void);
-/* USER CODE BEGIN PFP */
-static uint32_t get_tick(void);
-static void led_green_on(void);
-static void led_green_off(void);
-static void led_red_on(void);
-static void led_red_off(void);
-static void led_safe_on(void);
-static void led_safe_off(void);
-static void mosfet_bleeder_on(void);
-static void mosfet_bleeder_off(void);
-static void relay_master_on(void);
-static void relay_master_off(void);
-static void relay_charge_on(void);
-static void relay_carga_off(void);
-static void all_outputs_safe(void);
-/* USER CODE END PFP */
-
-/* -- Inline helpers ---------------------------------------------------- */
+/* -- Private helpers (static) ----------------------------------------------- */
 /* USER CODE BEGIN 0 */
-static uint32_t get_tick(void)        { return sys_tick_ms; }
-static void led_green_on(void)        { LL_GPIO_ResetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN); }
-static void led_green_off(void)       { LL_GPIO_SetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN); }
-static void led_red_on(void)          { LL_GPIO_ResetOutputPin(LED_RED_PORT, LED_RED_PIN); }
-static void led_red_off(void)         { LL_GPIO_SetOutputPin(LED_RED_PORT, LED_RED_PIN); }
-static void led_safe_on(void)         { LL_GPIO_ResetOutputPin(LED_SAFE_PORT, LED_SAFE_PIN); }
-static void led_safe_off(void)        { LL_GPIO_SetOutputPin(LED_SAFE_PORT, LED_SAFE_PIN); }
-static void mosfet_bleeder_on(void)		{ LL_GPIO_ResetOutputPin(MOSFET_BLEEDER_PORT, MOSFET_BLEEDER_PIN); }
-static void mosfet_bleeder_off(void)	{ LL_GPIO_SetOutputPin(MOSFET_BLEEDER_PORT, MOSFET_BLEEDER_PIN); }
-static void relay_master_on(void)     { LL_GPIO_SetOutputPin(RELAY_MASTER_PORT, RELAY_MASTER_PIN); }
-static void relay_master_off(void)    { LL_GPIO_ResetOutputPin(RELAY_MASTER_PORT, RELAY_MASTER_PIN); }
-static void relay_charge_on(void)      { LL_GPIO_ResetOutputPin(RELAY_CARGA_PORT, RELAY_CARGA_PIN); }
-static void relay_carga_off(void)     { LL_GPIO_SetOutputPin(RELAY_CARGA_PORT, RELAY_CARGA_PIN); }
 
+/* Time base */
+static uint32_t get_tick(void)              { return sys_tick_ms; }
+
+/* Status LEDs (active LOW) */
+static void led_green_on(void)              { LL_GPIO_ResetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN); }
+static void led_green_off(void)             { LL_GPIO_SetOutputPin(LED_GREEN_PORT, LED_GREEN_PIN); }
+static void led_red_on(void)                { LL_GPIO_ResetOutputPin(LED_RED_PORT, LED_RED_PIN); }
+static void led_red_off(void)               { LL_GPIO_SetOutputPin(LED_RED_PORT, LED_RED_PIN); }
+static void led_safe_on(void)               { LL_GPIO_ResetOutputPin(LED_SAFE_PORT, LED_SAFE_PIN); }
+static void led_safe_off(void)              { LL_GPIO_SetOutputPin(LED_SAFE_PORT, LED_SAFE_PIN); }
+
+/* Bleeder MOSFET (active LOW) */
+static void mosfet_bleeder_on(void)         { LL_GPIO_ResetOutputPin(MOSFET_BLEEDER_PORT, MOSFET_BLEEDER_PIN); }
+static void mosfet_bleeder_off(void)        { LL_GPIO_SetOutputPin(MOSFET_BLEEDER_PORT, MOSFET_BLEEDER_PIN); }
+
+/* Master relay (active HIGH) */
+static void relay_master_on(void)           { LL_GPIO_SetOutputPin(RELAY_MASTER_PORT, RELAY_MASTER_PIN); }
+static void relay_master_off(void)          { LL_GPIO_ResetOutputPin(RELAY_MASTER_PORT, RELAY_MASTER_PIN); }
+
+/* Charge relay (active LOW) */
+static void relay_charge_on(void)           { LL_GPIO_ResetOutputPin(RELAY_CARGA_PORT, RELAY_CARGA_PIN); }
+static void relay_carga_off(void)           { LL_GPIO_SetOutputPin(RELAY_CARGA_PORT, RELAY_CARGA_PIN); }
+
+/* Puts every output in its safe (power-off) state */
 static void all_outputs_safe(void)
 {
     led_green_off();
     led_red_off();
     relay_master_off();
-		relay_charge_on();
-		mosfet_bleeder_on();
-    /* TIM1 ya queda seguro por Discharge_Init() / tim1_stop() */
+    relay_charge_on();
+    mosfet_bleeder_on();
+    /* TIM1 is already left in a safe state by Discharge_Init() / tim1_stop() */
 }
+
 /* USER CODE END 0 */
 
-/* -- main -------------------------------------------------------------- */
+/* -- main ------------------------------------------------------------------- */
 int main(void)
 {
     /* USER CODE BEGIN 1 */
     /* USER CODE END 1 */
 
+    /* Core / system configuration */
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_AFIO);
     LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
 
     NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
     NVIC_SetPriority(SysTick_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 15, 0));
 
-
-    LL_GPIO_AF_Remap_SWJ_NOJTAG();   /* Libera PB3, PB4 */
+    LL_GPIO_AF_Remap_SWJ_NOJTAG();   /* Frees PB3, PB4 (and PA15) from JTAG */
 
     /* USER CODE BEGIN Init */
     /* USER CODE END Init */
 
-    SystemClock_Config();            /* HSE 8MHz + PLL ? 72MHz */
+    SystemClock_Config();            /* HSE 8 MHz + PLL -> 72 MHz */
 
     /* USER CODE BEGIN SysInit */
     /* USER CODE END SysInit */
 
+    /* Peripheral initialization */
     MX_GPIO_Init();
     MX_DMA_Init();
     MX_ADC1_Init();
     MX_TIM1_Init();
-		MX_TIM2_Init();
+    MX_TIM2_Init();
     MX_TIM4_Init();
     MX_USART2_UART_Init();
 
     /* USER CODE BEGIN 2 */
     all_outputs_safe();
-    Discharge_Init();                /* Ajusta TIM1 para FSM por IRQ */
-		Stepper_Init();   
+    Discharge_Init();                /* Configures TIM1 so the FSM is driven by IRQ */
+    Stepper_Init();
     /* USER CODE END 2 */
 
-    /* -- Variables de la FSM ------------------------------------------- */
+    /* -- FSM local variables ------------------------------------------------ */
     /* USER CODE BEGIN WHILE */
-    uint32_t state_entry_tick = get_tick();   /* ms en que entramos al estado */
-    uint32_t last_blink_tick  = get_tick();   /* ms del ultimo toggle de LED */
+    uint32_t state_entry_tick = get_tick();   /* ms at which the current state was entered */
+    uint32_t last_blink_tick  = get_tick();   /* ms of the last LED toggle                 */
     uint8_t  blink_state      = 0;
 
     app_state = STATE_IDLE;
 
     while (1)
     {
-        uint32_t now = sys_tick_ms; 
+        uint32_t now = sys_tick_ms;
 
         switch (app_state)
         {
-            /* -- IDLE: LED verde parpadea, espera boton ----------------- */
+            /* ------------------------------------------------------------------
+             * IDLE: green LED blinks (non-blocking), waits for GO button.
+             * Next: RELAY_ON
+             * ------------------------------------------------------------------ */
             case STATE_IDLE:
-                /* Parpadeo no bloqueante */
+                /* Non-blocking blink */
                 if ((now - last_blink_tick) >= TIME_BLINK_IDLE_MS)
                 {
                     last_blink_tick = now;
                     blink_state = !blink_state;
                     if (blink_state) led_green_on(); else led_green_off();
                 }
-								
+
                 if (btn_go_pressed)
                 {
                     btn_go_pressed = 0;
-                    /* Transicion a RELAY_ON */
+
+                    /* Transition to RELAY_ON: start charging the capacitors */
                     led_green_off();
-										led_red_on();
-										mosfet_bleeder_off();
+                    led_red_on();
+                    mosfet_bleeder_off();
                     relay_master_on();
-										relay_charge_on();										
+                    relay_charge_on();
+
                     app_state = STATE_RELAY_ON;
-                    state_entry_tick = now;										
+                    state_entry_tick = now;
                 }
                 break;
 
-            /* -- RELAY_ON: rele encendido, espera 5s carga caps con LED rojo ------- */
-            case STATE_RELAY_ON:								
-								if ((now - state_entry_tick) >= TIME_RELAY_WAIT_MS)
+            /* ------------------------------------------------------------------
+             * RELAY_ON: relays ON, red LED steady, waits TIME_RELAY_WAIT_MS
+             * for the capacitors to charge.
+             * Next: WAIT_XMS
+             * ------------------------------------------------------------------ */
+            case STATE_RELAY_ON:
+                if ((now - state_entry_tick) >= TIME_RELAY_WAIT_MS)
                 {
-										led_red_on();
-										app_state = STATE_WAIT_5S;	
-										state_entry_tick = now;
-                }                
+                    led_red_on();
+                    app_state = STATE_WAIT_XMS;
+                    state_entry_tick = now;
+                }
                 break;
 
-            /* -- WAIT_5S: espera 100ms con LED rojo fijo espera apagado total rele ------------------ */
-            case STATE_WAIT_5S:
-								relay_carga_off();
+            /* ------------------------------------------------------------------
+             * WAIT_XMS: charge relay released, waits TIME_RELAY_DEL_WAIT_MS
+             * (red LED steady) until it is fully off. Buttons are ignored.
+             * Next: READY
+             * ------------------------------------------------------------------ */
+            case STATE_WAIT_XMS:
+                relay_carga_off();
+
                 if ((now - state_entry_tick) >= TIME_RELAY_DEL_WAIT_MS)
                 {
                     led_red_off();
@@ -242,205 +223,267 @@ int main(void)
                     app_state = STATE_READY;
                     state_entry_tick = now;
                 }
-								btn_go_pressed = 0;   /* Ignorar cualquier pulsacion durante espera */
-								btn_a_pressed = 0;		/* Ignorar cualquier pulsacion durante espera */
-								btn_b_pressed = 0;		/* Ignorar cualquier pulsacion durante espera */
+
+                /* Ignore any button press during the wait */
+                btn_go_pressed = 0;
+                btn_a_pressed  = 0;
+                btn_b_pressed  = 0;
                 break;
-								
-            /* -- READY: LED verde fijo, espera boton para descarga ------- */
+
+            /* ------------------------------------------------------------------
+             * READY: green LED steady, machine armed.
+             *   GO -> READING   (start automatic approach / machining)
+             *   A  -> LOCKOUT   (fast stepper move up)
+             *   B  -> BLEEDING  (shut down power stage and discharge capacitors)
+             * ------------------------------------------------------------------ */
             case STATE_READY:
-								sparks = 0;
-								shorts = 0;
+                sparks = 0;
+                shorts = 0;
+
+                /* GO: start machining */
                 if (btn_go_pressed)
                 {
                     btn_go_pressed = 0;
-										btn_a_pressed = 0;		
-										btn_b_pressed = 0;
-                    led_green_off();
-                    /* Disparar ciclo de descarga */
-										//Discharge_RunCycle_Unico(); // final
-                    //Discharge_RunCycle_Train();	// habilitar solo para debugging aproximacion no electrolisis
-										//Stepper_Aprox_Inicial(BAJA);
-                    //app_state = STATE_DISCHARGE_UNICO;
-										app_state = STATE_LECTURA;
-//										sparks_effective = 0;
-//										sparks_ineffective = 0;
+                    btn_a_pressed  = 0;
+                    btn_b_pressed  = 0;
 
-//										test_start_ms = sys_tick_ms;
-//										test_elapsed_ms = 0;
+                    led_green_off();
+
+                    /* DEBUG alternatives (not needed for normal operation):
+                     *   Discharge_RunCycle_Once();        // final single-discharge cycle
+                     *   Discharge_RunCycle_Train();        // debug only: approach test without electrolysis
+                     *   Stepper_Aprox_Inicial(BAJA);
+                     *   app_state = STATE_DISCHARGE_ONCE;
+                     */
+                    app_state = STATE_READING;
+
+                    /* DEBUG: test counters (re-enable together with the DEBUG block in STATE_READING)
+                     *   sparks_effective   = 0;
+                     *   sparks_ineffective = 0;
+                     *   test_start_ms      = sys_tick_ms;
+                     *   test_elapsed_ms    = 0;
+                     */
                 }
-								
-								if (btn_a_pressed)
+
+                /* A: fast move up, then lockout */
+                if (btn_a_pressed)
                 {
                     btn_go_pressed = 0;
-										btn_a_pressed = 0;		
-										btn_b_pressed = 0;
-										led_green_on();
-										led_red_on();                 
-                    /* Disparar ciclo de descarga */
-                    //Discharge_RunCycle_Train();
-										Stepper_Mov_Rapido(SUBE);
+                    btn_a_pressed  = 0;
+                    btn_b_pressed  = 0;
+
+                    led_green_on();
+                    led_red_on();
+
+                    /* DEBUG: Discharge_RunCycle_Train(); */
+                    Stepper_Mov_Rapido(SUBE);
                     app_state = STATE_LOCKOUT;
+										state_entry_tick = now;
                 }
-								
-								if (btn_b_pressed)
+
+                /* B: transition to BLEEDING (relays off, capacitors discharge) */
+                if (btn_b_pressed)
                 {
-                    btn_a_pressed = 0;
-										btn_b_pressed = 0;
-										btn_go_pressed = 0;
-                    /* Transicion a RELAYS_OFF */
-										led_green_off();
+                    btn_a_pressed  = 0;
+                    btn_b_pressed  = 0;
+                    btn_go_pressed = 0;
+
+                    led_green_off();
                     relay_master_off();
-										relay_charge_on();
-										//mosfet_bleeder_on();
+                    relay_charge_on();
+                    /* mosfet_bleeder_on() is called later, inside STATE_BLEEDING */
+
                     app_state = STATE_BLEEDING;
                     state_entry_tick = now;
                 }
                 break;
-								
-						/* -- AVANCE: avanza en el sentido indicado por la funcion espera a que termine avance */
-						case STATE_AVANCE:
-								if(!Stepper_IsBusy())
-								{
-									Discharge_RunCycle_Unico();
-									app_state = STATE_DISCHARGE_CONT;
-								}
-								break;
-								
-						/* -- AVANCE: avanza en el sentido indicado por la funcion espera a que termine avance */
-						case STATE_RETROCESO:
-								if(!Stepper_IsBusy())
-								{
-									Discharge_RunCycle_Unico();
-									app_state = STATE_DISCHARGE_CONT;
-								}
-								break;				
 
-						/* -- LECTURA: Cuenta y analiza si es conveniente moverse o quedarse chispeando */
-						case STATE_LECTURA:
-								if(!Discharge_IsBusy())
-								{
-									led_green_on();
-									led_red_on();
-									btn_go_pressed = 0;
-									btn_a_pressed = 0;
-									if (down_steps_done > 3500) //corrgeir valor de comparacion a variable
-									{
-										sparks = 0;
-										shorts = 0;
-										down_steps_done = 0;
-										app_state = STATE_READY;
-									}
-									else if ((sparks > 1) && (sparks > shorts ) && (shorts >= 0))
-									{
-										down_steps_done = 0;
-										sparks = 0;
-										shorts = 0;
-										//sparks_effective++;
+            /* ------------------------------------------------------------------
+             * FORWARD: stepper moves in the commanded direction (down).
+             * Waits until the move ends, then fires a single discharge.
+             * Next: DISCHARGE_CONT
+             * ------------------------------------------------------------------ */
+            case STATE_FORWARD:
+                if (!Stepper_IsBusy())
+                {
+                    Discharge_RunCycle_Once();
+                    app_state = STATE_DISCHARGE_CONT;
+                }
+                break;
 
-//										if (sparks_effective >= TARGET_SPARKS)
-//											{
-//													test_elapsed_ms = sys_tick_ms - test_start_ms;
-//													app_state = STATE_READY;
-//											}
-//										else 
-//											{
-//												tren = 1;
-//												Discharge_RunCycle_Train();
-//												app_state = STATE_DISCHARGE_CONT;
-//											}
-											
-											Discharge_RunCycle_Train();
-											app_state = STATE_DISCHARGE_CONT;
-									}
-									else if ((sparks < 1) && (shorts < 1))
-									{
-										down_steps_done++;
-										sparks = 0;
-										shorts = 0;
-										Stepper_Aprox_Inicial(BAJA);
-										app_state = STATE_AVANCE;
-									}
-									else
-									{
-										down_steps_done = 0;
-										sparks = 0;
-										shorts = 0;
-										Stepper_Mov_Mid(SUBE);
-										app_state = STATE_RETROCESO;
-									}
-								}
-								break;
+            /* ------------------------------------------------------------------
+             * BACKWARD: stepper moves in the commanded direction (up).
+             * Waits until the move ends, then fires a single discharge.
+             * Next: DISCHARGE_CONT
+             * ------------------------------------------------------------------ */
+            case STATE_BACKWARD:
+                if (!Stepper_IsBusy())
+                {
+                    Discharge_RunCycle_Once();
+                    app_state = STATE_DISCHARGE_CONT;
+                }
+                break;
 
-            /* -- DISCHARGE: ciclo de pulsos en curso ------------------- */
-            case STATE_DISCHARGE_CONT:
-                /* Esperar a que el driver de descarga termine */
+            /* ------------------------------------------------------------------
+             * READING: decision state. Once the discharge driver is idle,
+             * analyses the sparks / shorts counters and decides:
+             *   1. Too many steps down without sparks -> give up, back to READY
+             *   2. Enough good sparks                 -> keep sparking (pulse train)
+             *   3. No sparks and no shorts            -> step down (approach)
+             *   4. Otherwise (shorts dominate)        -> step up (retract)
+             * ------------------------------------------------------------------ */
+            case STATE_READING:
                 if (!Discharge_IsBusy())
                 {
-									led_green_off();
-									led_red_off();
-									if (btn_b_pressed) 
-									{
-										btn_go_pressed = 0;
-										btn_a_pressed = 0;
-										btn_b_pressed = 0;
-										led_green_off();
-										app_state = STATE_LOCKOUT;
-										//test_elapsed_ms = sys_tick_ms - test_start_ms;
-										//sparks_effective = 0;
-										//sparks_ineffective = 0;
-										//test_elapsed_ms = 0;
+                    led_green_on();
+                    led_red_on();
+                    btn_go_pressed = 0;
+                    btn_a_pressed  = 0;
+
+                    if (down_steps_done > NUMBER_STEPS_DOWN_MAX)   
+                    {
+                        /* 1. Gap not found: abort and return to READY */
+                        sparks = 0;
+                        shorts = 0;
+                        down_steps_done = 0;
+                        app_state = STATE_READY;
+                    }
+                    else if ((sparks > 1) && (sparks > shorts) && (shorts >= 0))
+                    {
+                        /* 2. Good machining condition: run a pulse train */
+                        down_steps_done = 0;
+                        sparks = 0;
+                        shorts = 0;
+
+                        /* DEBUG: effective-spark counting and target check
+                         *   sparks_effective++;
+                         *   if (sparks_effective >= TARGET_SPARKS)
+                         *   {
+                         *       test_elapsed_ms = sys_tick_ms - test_start_ms;
+                         *       app_state = STATE_READY;
+                         *   }
+                         *   else
+                         *   {
+                         *       tren = 1;
+                         *       Discharge_RunCycle_Train();
+                         *       app_state = STATE_DISCHARGE_CONT;
+                         *   }
+                         */
+
+                        Discharge_RunCycle_Train();
+                        app_state = STATE_DISCHARGE_CONT;
+                    }
+                    else if ((sparks < 1) && (shorts < 1))
+                    {
+                        /* 3. Nothing detected: approach one step down */
+                        down_steps_done++;
+                        sparks = 0;
+                        shorts = 0;
+                        Stepper_Aprox_Inicial(BAJA);
+                        app_state = STATE_FORWARD;
+                    }
+                    else
+                    {
+                        /* 4. Shorts dominate: retract (mid-size step up) */
+                        down_steps_done = 0;
+                        sparks = 0;
+                        shorts = 0;
+                        Stepper_Mov_Mid(SUBE);
+                        app_state = STATE_BACKWARD;
+                    }
+                }
+                break;
+
+            /* ------------------------------------------------------------------
+             * DISCHARGE_CONT: discharge cycle (single or pulse train) running.
+             * When the driver finishes:
+             *   B pressed -> LOCKOUT (operator stop)
+             *   otherwise -> READING (evaluate result)
+             * ------------------------------------------------------------------ */
+            case STATE_DISCHARGE_CONT:
+                if (!Discharge_IsBusy())
+                {
+                    led_green_off();
+                    led_red_off();
+
+                    if (btn_b_pressed)
+                    {
+                        btn_go_pressed = 0;
+                        btn_a_pressed  = 0;
+                        btn_b_pressed  = 0;
+
+                        led_green_off();
+                        app_state = STATE_LOCKOUT;
+
+                        /* DEBUG: test statistics reset
+                         *   test_elapsed_ms    = sys_tick_ms - test_start_ms;
+                         *   sparks_effective   = 0;
+                         *   sparks_ineffective = 0;
+                         *   test_elapsed_ms    = 0;
+                         *   tren               = 0;
+                         */
+
+                        state_entry_tick = now;
+                        last_blink_tick  = now;
+                        blink_state = 0;
+                    }
+                    else
+                    {
+                        btn_go_pressed = 0;
+                        btn_a_pressed  = 0;
+
+                        /* DEBUG: effective / ineffective spark accounting
+                         *   Discharge_RunCycle_Train();
+                         *   sparks_ineffective++;
+                         *   if (tren && (sparks > 4) && ())      // condition was never completed
+                         *   {
+                         *       sparks_effective   = sparks_effective   + sparks - 4u;
+                         *       sparks_ineffective = sparks_ineffective + 4u;
+                         *   }
+                         *   else
+                         *   {
+                         *       sparks_effective   = sparks_effective   + sparks - 1u;
+                         *       sparks_ineffective = sparks_ineffective + 1u;
+                         *   }
+                         *   tren = 0;
+                         */
+
+                        app_state = STATE_READING;
+                    }
+                }
+                break;
+
+            /* ------------------------------------------------------------------
+             * DISCHARGE_ONCE: single pulse running (reachable only through the
+             * DEBUG path in STATE_READY). Returns to READING when finished.
+             * ------------------------------------------------------------------ */
+            case STATE_DISCHARGE_ONCE:
+                if (!Discharge_IsBusy())
+                {
+                    btn_go_pressed = 0;
+                    btn_a_pressed  = 0;
+                    btn_b_pressed  = 0;
+
+                    app_state = STATE_READING;
                     state_entry_tick = now;
                     last_blink_tick  = now;
                     blink_state = 0;
-										//tren = 0;
-									}
-                  else
-									{
-										btn_go_pressed = 0;
-										btn_a_pressed = 0;		
-                    /* Disparar ciclo de descarga */
-                    //Discharge_RunCycle_Train();
-										//sparks_ineffective++;
-//										if(tren && (sparks>4) && ()
-//										{
-//											sparks_effective = sparks_effective + sparks - 4u;
-//											sparks_ineffective = sparks_ineffective + 4u;
-//										}
-//										else
-//										{
-//											sparks_effective = sparks_effective + sparks - 1u;
-//											sparks_ineffective = sparks_ineffective + 1u;
-//										}
-//										tren = 0;
-                    app_state = STATE_LECTURA;
-									}
                 }
                 break;
-								
-							case STATE_DISCHARGE_UNICO:
-								
-                /* Esperar a que el driver de descarga termine */
-                if (!Discharge_IsBusy())
-                {
-									btn_go_pressed = 0;
-									btn_a_pressed = 0;
-									btn_b_pressed = 0;
-									app_state = STATE_LECTURA;
-                  state_entry_tick = now;
-                  last_blink_tick  = now;
-                  blink_state = 0;
-								}
-                break;
 
-						/* -- BLEEDING: LED safe parpadea, pasa a IDLE luego ------- */		
-						case STATE_BLEEDING:
-							
-								if ((now - state_entry_tick) >= TIME_RELAY_DEL_WAIT_MS)
+            /* ------------------------------------------------------------------
+             * BLEEDING: relays are off. After TIME_RELAY_DEL_WAIT_MS the bleeder
+             * MOSFET turns on; safe LED blinks until TIME_BLEEDING_WAIT_MS.
+             * Buttons are ignored.
+             * Next: IDLE
+             * ------------------------------------------------------------------ */
+            case STATE_BLEEDING:
+                if ((now - state_entry_tick) >= TIME_RELAY_DEL_WAIT_MS)
                 {
                     mosfet_bleeder_on();
                 }
-								if ((now - last_blink_tick) >= TIME_BLINK_LOCKOUT_MS)
+
+                if ((now - last_blink_tick) >= TIME_BLINK_LOCKOUT_MS)
                 {
                     last_blink_tick = now;
                     blink_state = !blink_state;
@@ -450,18 +493,24 @@ int main(void)
                 if ((now - state_entry_tick) >= TIME_BLEEDING_WAIT_MS)
                 {
                     led_safe_off();
-										led_green_on();
+                    led_green_on();
                     app_state = STATE_IDLE;
-                    state_entry_tick = now;								
+                    state_entry_tick = now;
                 }
-								btn_go_pressed = 0;   /* Ignorar cualquier pulsacion durante espera */
-								btn_a_pressed = 0;		/* Ignorar cualquier pulsacion durante espera */
-								btn_b_pressed = 0;		/* Ignorar cualquier pulsacion durante espera */
+
+                /* Ignore any button press during bleeding */
+                btn_go_pressed = 0;
+                btn_a_pressed  = 0;
+                btn_b_pressed  = 0;
                 break;
-								
-            /* -- LOCKOUT: 5s bloqueado, LED rojo parpadea --------------- */
+
+            /* ------------------------------------------------------------------
+             * LOCKOUT: blocked for TIME_LOCKOUT_MS, red LED blinks fast.
+             * I_Limit_Max is cleared and buttons are ignored.
+             * Next: READY
+             * ------------------------------------------------------------------ */
             case STATE_LOCKOUT:
-                /* Parpadeo rapido LED rojo */
+                /* Fast red LED blink */
                 if ((now - last_blink_tick) >= TIME_BLINK_LOCKOUT_MS)
                 {
                     last_blink_tick = now;
@@ -476,12 +525,16 @@ int main(void)
                     app_state = STATE_READY;
                     state_entry_tick = now;
                 }
-								I_Limit_Max = 0;			/* Reinicia el contador al encontrar un corrientazo mas */
-								btn_go_pressed = 0;   /* Ignorar cualquier pulsacion durante espera */
-								btn_a_pressed = 0;		/* Ignorar cualquier pulsacion durante espera */
-								btn_b_pressed = 0;		/* Ignorar cualquier pulsacion durante espera */
+
+                I_Limit_Max    = 0;   /* Restart the over-current counter */
+                btn_go_pressed = 0;   /* Ignore any button press during lockout */
+                btn_a_pressed  = 0;
+                btn_b_pressed  = 0;
                 break;
 
+            /* ------------------------------------------------------------------
+             * Fallback: unknown state -> safe outputs and restart from IDLE.
+             * ------------------------------------------------------------------ */
             default:
                 all_outputs_safe();
                 app_state = STATE_IDLE;
@@ -489,15 +542,16 @@ int main(void)
                 break;
         }
         /* USER CODE END WHILE */
+
         /* USER CODE BEGIN 3 */
     }
     /* USER CODE END 3 */
 }
 
-/* -- SystemClock_Config — HSE 8MHz + PLL ? 72MHz ---------------------- */
+/* -- SystemClock_Config: HSE 8 MHz + PLL x9 -> 72 MHz ------------------------ */
 void SystemClock_Config(void)
 {
-    /* Flash latency para 72MHz */
+    /* Flash latency for 72 MHz */
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_2);
     while (LL_FLASH_GetLatency() != LL_FLASH_LATENCY_2) {}
 
@@ -505,32 +559,33 @@ void SystemClock_Config(void)
     LL_RCC_HSE_Enable();
     while (LL_RCC_HSE_IsReady() != 1) {}
 
-    /* PLL: fuente HSE, multiplicador x9 ? 8*9 = 72MHz */
+    /* PLL: source HSE, multiplier x9 -> 8 * 9 = 72 MHz */
     LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE_DIV_1, LL_RCC_PLL_MUL_9);
     LL_RCC_PLL_Enable();
     while (LL_RCC_PLL_IsReady() != 1) {}
 
     /* Bus prescalers */
-    LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);   /* AHB  = 72MHz */
-    LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_2);    /* APB1 = 36MHz */
-    LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);    /* APB2 = 72MHz */
+    LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);   /* AHB  = 72 MHz */
+    LL_RCC_SetAPB1Prescaler(LL_RCC_APB1_DIV_2);    /* APB1 = 36 MHz */
+    LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_1);    /* APB2 = 72 MHz */
 
-    /* Cambiar fuente a PLL */
+    /* Switch system clock source to PLL */
     LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
     while (LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL) {}
 
-    /* SysTick a 1ms */
+    /* SysTick at 1 ms */
     LL_Init1msTick(72000000);
     LL_SetSystemCoreClock(72000000);
-		LL_SYSTICK_EnableIT();
+    LL_SYSTICK_EnableIT();
 
     /* ADC clock */
-    LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSRC_PCLK2_DIV_6); /* 72/6=12MHz */
+    LL_RCC_SetADCClockSource(LL_RCC_ADC_CLKSRC_PCLK2_DIV_6);   /* 72 / 6 = 12 MHz */
 }
 
 /* USER CODE BEGIN 4 */
 /* USER CODE END 4 */
 
+/* -- Error handler: disable IRQs, force safe outputs, halt ------------------- */
 void Error_Handler(void)
 {
     __disable_irq();

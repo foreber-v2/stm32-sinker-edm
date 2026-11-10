@@ -42,7 +42,7 @@ uint8_t Discharge_RunCycle_Continuo(void);
  * @brief  Consulta si hay un ciclo en curso.
  * @retval 1 = ocupado, 0 = libre
  */
-uint8_t Discharge_RunCycle_Unico(void);
+uint8_t Discharge_RunCycle_Once(void);
 
 /**
  * @brief  Consulta si hay un ciclo en curso.

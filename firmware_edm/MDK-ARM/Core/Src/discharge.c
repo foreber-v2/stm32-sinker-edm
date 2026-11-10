@@ -110,7 +110,7 @@ uint8_t Discharge_RunCycle_Train(void)
     return 1;
 }
 
-uint8_t Discharge_RunCycle_Unico(void)
+uint8_t Discharge_RunCycle_Once(void)
 {
     if (dis_busy) return 0;
 		
