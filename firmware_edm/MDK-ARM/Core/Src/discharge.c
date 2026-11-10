@@ -183,7 +183,7 @@ void Discharge_IRQHandler(void)
     {
         LL_TIM_ClearFlag_CC4(TIM1);
         LL_TIM_OC_SetMode(TIM1, LL_TIM_CHANNEL_CH2, LL_TIM_OCMODE_FORCED_INACTIVE);   /* Force channel 2 LOW */
-        dis_busy = 0;
+        dis_busy = 1;
     }
 
     /* CC3: end of pulse (ARR - 1) */
