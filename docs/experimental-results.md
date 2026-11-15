@@ -15,7 +15,7 @@ To evaluate the machining performance of the sinker EDM prototype, three cutting
 | test                                 | voltage (V) | t_on (us) | t_off (us) | algorithm       | short current (A) | current spark (A) | time (mins) | MRR (mm3/min) |
 |:------------------------------------:|:-----------:|:---------:|:----------:|:---------------:|:-----------------:|:-----------------:|:-----------:|:-------------:|
 | aluminum                             | 156.7       | 8         | 52         | HIGH Duty Cycle | 30                | 20                | 5           | 4.31          |
-| structural steel (direct polarity)   | 156.7       | 8         | 52         | LOW Duty Cycle  | 30                | 20                | 180         | 0.03          |
+| structural steel (direct polarity)   | 156.7       | 12        | 48         | LOW Duty Cycle  | 40                | 34                | 180         | 0.03          |
 | structural steel (inverted polarity) | 156.7       | 12        | 48         | LOW Duty Cycle  | 40                | 34                | 180         | 0.12          |
 
 
