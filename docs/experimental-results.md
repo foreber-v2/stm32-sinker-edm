@@ -43,8 +43,10 @@ To accurately quantify the eroded cavity volume without relying solely on tool-t
 2. **Contour & Thresholding:** The eroded boundary was isolated using polygon selection / color thresholding to measure the exact projected area ($\text{mm}^2$).
 3. **Volume Estimation:** $\text{Volume} = \text{Measured Area} \times \text{thickness of piece}$.
 
-![ImageJ Cavity Area Measurement](../images/measurment_imageJ/area_piece_front.png)
-*Figure 1: Example of cavity surface area measurement in ImageJ showing scale calibration and eroded boundary selection.*
+<p align="center">
+  <img src="../images/measurment_imageJ/area_piece_front.png" alt="Cavity Area Measurement" width="650px" style="border-radius: 6px; border: 1px solid #ddd;">
+</p>
+<p align="center"><sub><i>Figure 1: Example of cavity surface area measurement in ImageJ showing scale calibration and eroded boundary selection.</i></sub></p>
 
 ---
 
