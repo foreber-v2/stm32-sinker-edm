@@ -50,13 +50,6 @@ To accurately quantify the eroded cavity volume without relying solely on tool-t
 
 ---
 
-### 2. Oscilloscope Captures & Waveform Analysis *(Coming Soon)*
-
-* **Short-Circuit vs. Open-Circuit & Valid Spark Waveforms:** Gap voltage ($V_{gap}$) and discharge current ($I_{gap}$) behavior across spark states.
-* **Gate Drive Signals:** High-side/low-side MOSFET switching transitions and dead-time verification.
-* **Current Noise Analysis:** Switching transients, comparator (LM311) false-triggering mitigation, and parasitic inductance effects.
----
-
 ### 2. Oscilloscope Captures & Waveform Analysis
 
 All experimental measurements were acquired using a 2-channel oscilloscope. To maintain a consistent phase and timing reference across sequential single-channel captures, **Oscilloscope Channel 1 (CH1)** was anchored to the **high-side of the spark gap** (used as the primary trigger source), while **Channel 2 (CH2)** probed the respective gate-drive, logic, step-pulse, and current-sense nodes.
