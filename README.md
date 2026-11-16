@@ -3,7 +3,7 @@
 ### Open-Source Low-Cost Sinker EDM (STM32)
 
 <p align="center">
-  <a href="https://youtube.com/shorts/9Su3qhZ1Zeg"><img src="https://img.shields.io/badge/YouTube-Watch%20Demo-red?logo=youtube" alt="YouTube Demonstration"></a>
+  <a href="https://youtube.com/shorts/9Su3qhZ1Zeg"><img src="assets/process_in_action.gif" alt="STM32-Based Sinker EDM" width="100%"></a>
 </p>
 
 An ultra-low-cost, open-source **Sinker Electrical Discharge Machining (EDM)** prototype designed to make precision hard-metal subtractive manufacturing accessible. Built from the ground up using recycled telecom power supplies, custom single-sided PCBs, and locally sourced mechanical components.
